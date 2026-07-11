@@ -57,6 +57,9 @@ import { ModelSettingsDialog } from "../testing/ModelSettingsDialog";
 import { PromptTestBench } from "../testing/PromptTestBench";
 import { loadModelProfiles, saveModelProfiles, type ModelProfile } from "../testing/modelProfiles";
 
+const MIN_CANVAS_ZOOM = 0.2;
+const MAX_CANVAS_ZOOM = 1.6;
+
 type ViewMode = "canvas" | "prompt" | "json" | "validation";
 type StorageStatus = "loading" | "saving" | "saved" | "error";
 type Selection =
@@ -1088,7 +1091,7 @@ function CanvasView({
         event.preventDefault();
         const rect = canvasRef.current?.getBoundingClientRect();
         if (!rect) return;
-        const nextZoom = Math.min(1.6, Math.max(0.55, zoom * Math.exp(-event.deltaY * 0.001)));
+        const nextZoom = Math.min(MAX_CANVAS_ZOOM, Math.max(MIN_CANVAS_ZOOM, zoom * Math.exp(-event.deltaY * 0.001)));
         if (nextZoom === zoom) return;
         const pointer = { x: event.clientX - rect.left, y: event.clientY - rect.top };
         const world = { x: (pointer.x - pan.x) / zoom, y: (pointer.y - pan.y) / zoom };
@@ -1096,7 +1099,10 @@ function CanvasView({
         setZoom(nextZoom);
       }}
     >
-      <div className="canvasInner" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}>
+      <div
+        className={drag ? "canvasInner isDragging" : "canvasInner"}
+        style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}
+      >
         <svg className="edgeLayer" width="3200" height="1200">
           {workflow.edges.map((edge) => {
             const route = getEdgeRoute(edge, nodesById, edgeRouteMeta);
@@ -1893,7 +1899,7 @@ export function App() {
         onOpenTestBench={() => setShowTestBench(true)}
         onOpenModelSettings={() => setShowModelSettings(true)}
         onLayout={applyLayout}
-        onZoom={(delta) => setZoom(Math.min(1.6, Math.max(0.55, zoom + delta)))}
+        onZoom={(delta) => setZoom(Math.min(MAX_CANVAS_ZOOM, Math.max(MIN_CANVAS_ZOOM, zoom + delta)))}
         issuesCount={issues.length}
       />
       <div className="workspace">
