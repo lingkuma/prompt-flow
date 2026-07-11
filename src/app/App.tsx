@@ -72,6 +72,7 @@ type EdgeRouteMeta = {
   targetCount: number;
   pairIndex: number;
   pairCount: number;
+  hasReverse: boolean;
 };
 
 const edgeSortKey = (edge: WorkflowEdge) => `${edge.sourceNodeId}:${edge.targetNodeId}:${edge.id}`;
@@ -108,8 +109,8 @@ function getEdgePortSides(source: WorkflowNode, target: WorkflowNode) {
     : { sourceSide: "top" as EdgePortSide, targetSide: "bottom" as EdgePortSide };
 }
 
-function getNodePort(node: WorkflowNode, side: EdgePortSide, index: number, count: number): Point {
-  const offset = spreadPortOffset(side === "top" || side === "bottom" ? node.layout.width : node.layout.height, index, count);
+function getNodePort(node: WorkflowNode, side: EdgePortSide, index: number, count: number, extraOffset = 0): Point {
+  const offset = spreadPortOffset(side === "top" || side === "bottom" ? node.layout.width : node.layout.height, index, count) + extraOffset;
   switch (side) {
     case "top":
       return { x: node.layout.x + offset, y: node.layout.y };
@@ -227,63 +228,87 @@ function buildEdgeRouteMeta(workflow: Workflow, nodesById: Map<string, WorkflowN
   const ensureMeta = (edgeId: string) => {
     const existing = meta.get(edgeId);
     if (existing) return existing;
-    const created = { sourceIndex: 0, sourceCount: 1, targetIndex: 0, targetCount: 1, pairIndex: 0, pairCount: 1 };
+    const created = { sourceIndex: 0, sourceCount: 1, targetIndex: 0, targetCount: 1, pairIndex: 0, pairCount: 1, hasReverse: false };
     meta.set(edgeId, created);
     return created;
   };
 
   for (const edges of outgoing.values()) {
-    const sorted = [...edges].sort((a, b) => {
-      const aTarget = nodesById.get(a.targetNodeId);
-      const bTarget = nodesById.get(b.targetNodeId);
-      const aSource = nodesById.get(a.sourceNodeId);
-      const bSource = nodesById.get(b.sourceNodeId);
-      const aSide = aTarget && aSource ? getEdgePortSides(aSource, aTarget).sourceSide : "right";
-      const bSide = bTarget && bSource ? getEdgePortSides(bSource, bTarget).sourceSide : "right";
-      const aAxis = aTarget
-        ? aSide === "top" || aSide === "bottom"
-          ? aTarget.layout.x + aTarget.layout.width / 2
-          : aTarget.layout.y + aTarget.layout.height / 2
-        : 0;
-      const bAxis = bTarget
-        ? bSide === "top" || bSide === "bottom"
-          ? bTarget.layout.x + bTarget.layout.width / 2
-          : bTarget.layout.y + bTarget.layout.height / 2
-        : 0;
-      return aAxis - bAxis || edgeSortKey(a).localeCompare(edgeSortKey(b));
-    });
-    sorted.forEach((edge, index) => {
-      const item = ensureMeta(edge.id);
-      item.sourceIndex = index;
-      item.sourceCount = sorted.length;
-    });
+    const edgesBySide = new Map<EdgePortSide, WorkflowEdge[]>();
+    for (const edge of edges) {
+      const source = nodesById.get(edge.sourceNodeId);
+      const target = nodesById.get(edge.targetNodeId);
+      const side = source && target ? getEdgePortSides(source, target).sourceSide : "right";
+      const sideEdges = edgesBySide.get(side) ?? [];
+      sideEdges.push(edge);
+      edgesBySide.set(side, sideEdges);
+    }
+
+    for (const sideEdges of edgesBySide.values()) {
+      const sorted = [...sideEdges].sort((a, b) => {
+        const aTarget = nodesById.get(a.targetNodeId);
+        const bTarget = nodesById.get(b.targetNodeId);
+        const aSource = nodesById.get(a.sourceNodeId);
+        const bSource = nodesById.get(b.sourceNodeId);
+        const aSide = aTarget && aSource ? getEdgePortSides(aSource, aTarget).sourceSide : "right";
+        const bSide = bTarget && bSource ? getEdgePortSides(bSource, bTarget).sourceSide : "right";
+        const aAxis = aTarget
+          ? aSide === "top" || aSide === "bottom"
+            ? aTarget.layout.x + aTarget.layout.width / 2
+            : aTarget.layout.y + aTarget.layout.height / 2
+          : 0;
+        const bAxis = bTarget
+          ? bSide === "top" || bSide === "bottom"
+            ? bTarget.layout.x + bTarget.layout.width / 2
+            : bTarget.layout.y + bTarget.layout.height / 2
+          : 0;
+        return aAxis - bAxis || edgeSortKey(a).localeCompare(edgeSortKey(b));
+      });
+      sorted.forEach((edge, index) => {
+        const item = ensureMeta(edge.id);
+        item.sourceIndex = index;
+        item.sourceCount = sorted.length;
+      });
+    }
   }
 
   for (const edges of incoming.values()) {
-    const sorted = [...edges].sort((a, b) => {
-      const aSource = nodesById.get(a.sourceNodeId);
-      const bSource = nodesById.get(b.sourceNodeId);
-      const aTarget = nodesById.get(a.targetNodeId);
-      const bTarget = nodesById.get(b.targetNodeId);
-      const aSide = aTarget && aSource ? getEdgePortSides(aSource, aTarget).targetSide : "left";
-      const bSide = bTarget && bSource ? getEdgePortSides(bSource, bTarget).targetSide : "left";
-      const aAxis = aSource
-        ? aSide === "top" || aSide === "bottom"
-          ? aSource.layout.x + aSource.layout.width / 2
-          : aSource.layout.y + aSource.layout.height / 2
-        : 0;
-      const bAxis = bSource
-        ? bSide === "top" || bSide === "bottom"
-          ? bSource.layout.x + bSource.layout.width / 2
-          : bSource.layout.y + bSource.layout.height / 2
-        : 0;
-      return aAxis - bAxis || edgeSortKey(a).localeCompare(edgeSortKey(b));
-    });
-    sorted.forEach((edge, index) => {
-      const item = ensureMeta(edge.id);
-      item.targetIndex = index;
-      item.targetCount = sorted.length;
-    });
+    const edgesBySide = new Map<EdgePortSide, WorkflowEdge[]>();
+    for (const edge of edges) {
+      const source = nodesById.get(edge.sourceNodeId);
+      const target = nodesById.get(edge.targetNodeId);
+      const side = source && target ? getEdgePortSides(source, target).targetSide : "left";
+      const sideEdges = edgesBySide.get(side) ?? [];
+      sideEdges.push(edge);
+      edgesBySide.set(side, sideEdges);
+    }
+
+    for (const sideEdges of edgesBySide.values()) {
+      const sorted = [...sideEdges].sort((a, b) => {
+        const aSource = nodesById.get(a.sourceNodeId);
+        const bSource = nodesById.get(b.sourceNodeId);
+        const aTarget = nodesById.get(a.targetNodeId);
+        const bTarget = nodesById.get(b.targetNodeId);
+        const aSide = aTarget && aSource ? getEdgePortSides(aSource, aTarget).targetSide : "left";
+        const bSide = bTarget && bSource ? getEdgePortSides(bSource, bTarget).targetSide : "left";
+        const aAxis = aSource
+          ? aSide === "top" || aSide === "bottom"
+            ? aSource.layout.x + aSource.layout.width / 2
+            : aSource.layout.y + aSource.layout.height / 2
+          : 0;
+        const bAxis = bSource
+          ? bSide === "top" || bSide === "bottom"
+            ? bSource.layout.x + bSource.layout.width / 2
+            : bSource.layout.y + bSource.layout.height / 2
+          : 0;
+        return aAxis - bAxis || edgeSortKey(a).localeCompare(edgeSortKey(b));
+      });
+      sorted.forEach((edge, index) => {
+        const item = ensureMeta(edge.id);
+        item.targetIndex = index;
+        item.targetCount = sorted.length;
+      });
+    }
   }
 
   for (const edges of pairs.values()) {
@@ -293,6 +318,13 @@ function buildEdgeRouteMeta(workflow: Workflow, nodesById: Map<string, WorkflowN
       item.pairIndex = index;
       item.pairCount = sorted.length;
     });
+  }
+
+  for (const edge of workflow.edges) {
+    const hasReverse = workflow.edges.some(
+      (candidate) => candidate.sourceNodeId === edge.targetNodeId && candidate.targetNodeId === edge.sourceNodeId,
+    );
+    if (hasReverse) ensureMeta(edge.id).hasReverse = true;
   }
 
   return meta;
@@ -309,8 +341,9 @@ function getEdgeRoute(edge: WorkflowEdge, nodesById: Map<string, WorkflowNode>, 
   const targetIndex = routeMeta?.targetIndex ?? 0;
   const targetCount = routeMeta?.targetCount ?? 1;
   const { sourceSide, targetSide } = getEdgePortSides(source, target);
-  const sourcePoint = getNodePort(source, sourceSide, sourceIndex, sourceCount);
-  const targetPoint = getNodePort(target, targetSide, targetIndex, targetCount);
+  const reciprocalPortGap = routeMeta?.hasReverse ? 16 : 0;
+  const sourcePoint = getNodePort(source, sourceSide, sourceIndex, sourceCount, -reciprocalPortGap);
+  const targetPoint = getNodePort(target, targetSide, targetIndex, targetCount, reciprocalPortGap);
   const sourceLane = (sourceIndex - (sourceCount - 1) / 2) * 28;
   const targetLane = (targetIndex - (targetCount - 1) / 2) * 18;
   const pairLane = ((routeMeta?.pairIndex ?? 0) - ((routeMeta?.pairCount ?? 1) - 1) / 2) * 18;
