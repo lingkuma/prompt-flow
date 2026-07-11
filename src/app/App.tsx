@@ -25,7 +25,7 @@ import {
   ZoomOut,
   Copy,
 } from "lucide-react";
-import type { TextareaHTMLAttributes } from "react";
+import type { CSSProperties, TextareaHTMLAttributes } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { compilePrompt } from "../workflow/compiler";
 import { syncEdges } from "../workflow/edgeSync";
@@ -59,6 +59,7 @@ import { loadModelProfiles, saveModelProfiles, type ModelProfile } from "../test
 
 const MIN_CANVAS_ZOOM = 0.2;
 const MAX_CANVAS_ZOOM = 1.6;
+const NODE_OVERVIEW_ZOOM = 0.55;
 
 type ViewMode = "canvas" | "prompt" | "json" | "validation";
 type StorageStatus = "loading" | "saving" | "saved" | "error";
@@ -1100,8 +1101,11 @@ function CanvasView({
       }}
     >
       <div
-        className={drag ? "canvasInner isDragging" : "canvasInner"}
-        style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}
+        className={["canvasInner", drag ? "isDragging" : "", zoom <= NODE_OVERVIEW_ZOOM ? "isNodeOverview" : ""].filter(Boolean).join(" ")}
+        style={{
+          "--canvas-zoom": zoom,
+          transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+        } as CSSProperties}
       >
         <svg className="edgeLayer" width="3200" height="1200">
           {workflow.edges.map((edge) => {

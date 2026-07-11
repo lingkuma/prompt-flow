@@ -387,6 +387,26 @@ label {
   transition: none;
 }
 
+.canvasInner.isNodeOverview .nodeCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.canvasInner.isNodeOverview .nodeCard header,
+.canvasInner.isNodeOverview .nodeCard p,
+.canvasInner.isNodeOverview .nodeCard footer {
+  display: none;
+}
+
+.canvasInner.isNodeOverview .nodeCard h3 {
+  max-width: 100%;
+  font-size: calc(26px / var(--canvas-zoom));
+  line-height: 1.15;
+  text-align: center;
+}
+
 .edgeLayer {
   position: absolute;
   inset: 0;
