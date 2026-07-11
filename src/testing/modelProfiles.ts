@@ -13,6 +13,8 @@ export interface ChatMessage {
 }
 
 const MODEL_PROFILES_KEY = "prompt-workflow-editor.modelProfiles";
+const DEFAULT_BASE_URL = "https://api.0-0.pro/v1";
+const DEFAULT_MODEL = "gpt-5.6-luna";
 
 const createId = () => {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) return `model_${crypto.randomUUID()}`;
@@ -22,9 +24,9 @@ const createId = () => {
 export const createModelProfile = (index = 1): ModelProfile => ({
   id: createId(),
   name: index === 1 ? "OpenAI" : `模型配置 ${index}`,
-  baseUrl: "https://api.openai.com/v1",
+  baseUrl: DEFAULT_BASE_URL,
   apiKey: "",
-  model: "gpt-4.1-mini",
+  model: DEFAULT_MODEL,
   temperature: 0.7,
 });
 
@@ -37,7 +39,7 @@ export function loadModelProfiles(): ModelProfile[] {
     return parsed.map((item, index) => ({
       id: item.id || createId(),
       name: item.name || `模型配置 ${index + 1}`,
-      baseUrl: item.baseUrl || "https://api.openai.com/v1",
+      baseUrl: item.baseUrl || DEFAULT_BASE_URL,
       apiKey: item.apiKey || "",
       model: item.model || "",
       temperature: typeof item.temperature === "number" ? item.temperature : 0.7,

@@ -56,6 +56,7 @@ export function ModelSettingsDialog({
           <div>
             <h2 id="model-settings-title"><Settings2 size={19} /> 模型设置</h2>
             <p>保存多个 OpenAI 兼容 API 配置，在对话测试台中按列选择。</p>
+            <a className="registrationLink" href="https://0-0.pro/register?ref=75RRBBR3" target="_blank" rel="noreferrer">点击注册，首充有奖</a>
           </div>
           <button className="iconButton" title="关闭" onClick={onClose}><X size={18} /></button>
         </header>
@@ -82,7 +83,7 @@ export function ModelSettingsDialog({
                 <input value={selected.name} onChange={(event) => updateSelected((profile) => { profile.name = event.target.value; })} placeholder="例如：OpenAI 正式环境" />
               </label>
               <label>Base URL
-                <input value={selected.baseUrl} onChange={(event) => updateSelected((profile) => { profile.baseUrl = event.target.value; })} placeholder="https://api.openai.com/v1" />
+                <input value={selected.baseUrl} onChange={(event) => updateSelected((profile) => { profile.baseUrl = event.target.value; })} placeholder="https://api.0-0.pro/v1" />
                 <span className="fieldHelp">可填写到 /v1；如果已经包含 /chat/completions，也会直接使用。</span>
               </label>
               <label>API Key
@@ -102,7 +103,7 @@ export function ModelSettingsDialog({
               </label>
               <div className="twoCols">
                 <label>模型名称
-                  <input value={selected.model} onChange={(event) => updateSelected((profile) => { profile.model = event.target.value; })} placeholder="gpt-4.1-mini" />
+                  <input value={selected.model} onChange={(event) => updateSelected((profile) => { profile.model = event.target.value; })} placeholder="gpt-5.6-luna" />
                 </label>
                 <label>Temperature
                   <input

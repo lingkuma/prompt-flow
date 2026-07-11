@@ -746,6 +746,17 @@ label {
   font-size: 12px;
 }
 
+.registrationLink {
+  display: inline-block;
+  margin-top: 5px;
+  color: #316a53;
+  font-size: 12px;
+}
+
+.registrationLink:hover {
+  color: #164b37;
+}
+
 .dialogFooter {
   justify-content: flex-end;
   border-top: 1px solid #d9ddd4;
