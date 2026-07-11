@@ -134,6 +134,10 @@ label {
   padding: 8px 12px;
 }
 
+.toolbar button {
+  white-space: nowrap;
+}
+
 .brand {
   display: flex;
   align-items: center;
@@ -165,16 +169,6 @@ label {
   border-left: 1px solid #e1e4dc;
 }
 
-.workflowGroup {
-  min-width: 0;
-}
-
-.workflowSelect {
-  width: 210px;
-  min-height: 32px;
-  padding-block: 5px;
-}
-
 .storageStatus {
   min-width: 44px;
   color: #667085;
@@ -194,6 +188,22 @@ label {
   margin-left: auto;
 }
 
+.layoutGroup {
+  min-width: 0;
+}
+
+.layoutToggle {
+  flex: 0 0 auto;
+}
+
+.layoutGroup:not(.expanded) {
+  padding-right: 0;
+}
+
+.rotated {
+  transform: rotate(180deg);
+}
+
 .testPromptButton {
   border-color: #86b59f;
   background: #edf7f1;
@@ -202,9 +212,19 @@ label {
 }
 
 .workspace {
+  --sidebar-width: 280px;
+  --property-width: 390px;
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr) 390px;
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr) var(--property-width);
   min-height: 0;
+}
+
+.workspace.leftSidebarCollapsed {
+  --sidebar-width: 44px;
+}
+
+.workspace.rightPanelCollapsed {
+  --property-width: 44px;
 }
 
 .sidebar,
@@ -215,13 +235,153 @@ label {
 }
 
 .sidebar {
+  position: relative;
   border-right: 1px solid #d9ddd4;
   padding: 14px;
 }
 
 .propertyPanel {
+  position: relative;
   border-left: 1px solid #d9ddd4;
   padding: 14px;
+}
+
+.panelCollapseButton {
+  width: 28px;
+  min-height: 28px;
+  padding: 0;
+}
+
+.sidebar > .panelCollapseButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+}
+
+.propertyPanel > .panelCollapseButton {
+  display: flex;
+  margin: -6px 0 10px auto;
+}
+
+.sidebar.collapsed,
+.propertyPanel.collapsed {
+  padding: 8px;
+}
+
+.sidebar.collapsed > .panelCollapseButton {
+  top: 8px;
+  right: 8px;
+}
+
+.sidebar.collapsed > :not(.panelCollapseButton),
+.propertyPanel.collapsed > :not(.panelCollapseButton) {
+  display: none;
+}
+
+.workflowLibrary {
+  margin-top: 34px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e1e4dc;
+}
+
+.workflowLibraryToggle {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  width: 100%;
+  justify-content: initial;
+  padding: 8px 9px;
+  text-align: left;
+  font-weight: 700;
+}
+
+.workflowLibraryToggle span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workflowLibraryBody {
+  margin-top: 8px;
+}
+
+.workflowLibraryActions {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  margin-bottom: 7px;
+}
+
+.workflowLibraryActions .storageStatus {
+  margin-left: auto;
+}
+
+.workflowLibraryActions button {
+  min-height: 28px;
+  padding: 4px 7px;
+}
+
+.workflowList {
+  display: grid;
+  gap: 4px;
+  max-height: 250px;
+  overflow: auto;
+}
+
+.workflowItem {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px;
+  min-height: 34px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 2px;
+}
+
+.workflowItem.active {
+  border-color: #b9d8c7;
+  background: #edf7f1;
+}
+
+.workflowItemSelect {
+  min-width: 0;
+  min-height: 28px;
+  justify-content: space-between;
+  border: 0;
+  background: transparent;
+  padding: 4px 6px;
+  text-align: left;
+}
+
+.workflowItemSelect span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workflowItemSelect small {
+  flex: 0 0 auto;
+  color: #316a53;
+  font-size: 11px;
+}
+
+.workflowItem input {
+  min-height: 28px;
+  padding: 4px 6px;
+}
+
+.workflowItemActions {
+  display: flex;
+  gap: 2px;
+}
+
+.workflowItemActions button {
+  width: 26px;
+  min-height: 26px;
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
 }
 
 .sidebar section + section {
@@ -1126,7 +1286,8 @@ label {
 
 @media (max-width: 1100px) {
   .workspace {
-    grid-template-columns: 230px minmax(0, 1fr) 330px;
+    --sidebar-width: 230px;
+    --property-width: 330px;
   }
 
   .toolbar {

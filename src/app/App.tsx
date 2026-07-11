@@ -5,15 +5,20 @@ import {
   ArrowUp,
   Braces,
   CheckCircle2,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   CirclePlus,
   Download,
   FileText,
   GitBranch,
   ImageDown,
   LayoutGrid,
+  ListTree,
   MessagesSquare,
   Minus,
   Plus,
+  Pencil,
   RefreshCcw,
   Save,
   Share2,
@@ -676,13 +681,6 @@ async function exportWorkflowImage(workflow: Workflow) {
 function AppToolbar({
   view,
   setView,
-  workflowRecords,
-  activeWorkflowId,
-  storageStatus,
-  onSelectWorkflow,
-  onCreateWorkflow,
-  onDuplicateWorkflow,
-  onDeleteWorkflow,
   onAddNode,
   onImport,
   onExport,
@@ -696,13 +694,6 @@ function AppToolbar({
 }: {
   view: ViewMode;
   setView: (view: ViewMode) => void;
-  workflowRecords: WorkflowRecord[];
-  activeWorkflowId: string;
-  storageStatus: StorageStatus;
-  onSelectWorkflow: (id: string) => void;
-  onCreateWorkflow: () => void;
-  onDuplicateWorkflow: () => void;
-  onDeleteWorkflow: () => void;
   onAddNode: () => void;
   onImport: (file: File) => void;
   onExport: () => void;
@@ -715,7 +706,7 @@ function AppToolbar({
   issuesCount: number;
 }) {
   const fileRef = useRef<HTMLInputElement | null>(null);
-  const storageLabel = storageStatus === "loading" ? "加载中" : storageStatus === "saving" ? "保存中" : storageStatus === "error" ? "保存失败" : "已保存";
+  const [layoutExpanded, setLayoutExpanded] = useState(false);
   return (
     <header className="toolbar">
       <div className="brand">
@@ -724,29 +715,6 @@ function AppToolbar({
           <strong>Prompt Workflow</strong>
           <span>规则图编辑器</span>
         </div>
-      </div>
-      <div className="toolbarGroup workflowGroup">
-        <select
-          className="workflowSelect"
-          value={activeWorkflowId}
-          disabled={storageStatus === "loading" || workflowRecords.length === 0}
-          onChange={(event) => onSelectWorkflow(event.target.value)}
-          title="切换图"
-        >
-          {workflowRecords.map((record) => (
-            <option key={record.id} value={record.id}>{record.title}</option>
-          ))}
-        </select>
-        <button title="新建图" onClick={onCreateWorkflow} disabled={storageStatus === "loading"}>
-          <CirclePlus size={16} /> 新建图
-        </button>
-        <button title="复制当前图" onClick={onDuplicateWorkflow} disabled={storageStatus === "loading" || !activeWorkflowId}>
-          <Copy size={16} />
-        </button>
-        <button className="danger" title="删除当前图" onClick={onDeleteWorkflow} disabled={storageStatus === "loading" || workflowRecords.length <= 1}>
-          <Trash2 size={16} />
-        </button>
-        <span className={`storageStatus ${storageStatus}`}>{storageLabel}</span>
       </div>
       <div className="toolbarGroup">
         <button title="新建节点" onClick={onAddNode}>
@@ -776,16 +744,21 @@ function AppToolbar({
           }}
         />
       </div>
-      <div className="toolbarGroup">
-        <button title="从起点向右布局" onClick={() => onLayout("start")}>
-          <ArrowDownToLine size={16} /> 起点布局
+      <div className={`toolbarGroup layoutGroup ${layoutExpanded ? "expanded" : ""}`}>
+        <button className="layoutToggle" title="展开布局工具" onClick={() => setLayoutExpanded((current) => !current)}>
+          <LayoutGrid size={16} /> 布局 <ChevronDown size={14} className={layoutExpanded ? "rotated" : ""} />
         </button>
-        <button title="按节点编号布局" onClick={() => onLayout("code")}>
-          <LayoutGrid size={16} /> 编号布局
-        </button>
-        <button title="按意向等级分层布局" onClick={() => onLayout("intent")}>
-          <Waypoints size={16} /> 意向布局
-        </button>
+        {layoutExpanded && <>
+          <button title="从起点向右布局" onClick={() => onLayout("start")}>
+            <ArrowDownToLine size={16} /> 起点布局
+          </button>
+          <button title="按节点编号布局" onClick={() => onLayout("code")}>
+            <LayoutGrid size={16} /> 编号布局
+          </button>
+          <button title="按意向等级分层布局" onClick={() => onLayout("intent")}>
+            <Waypoints size={16} /> 意向布局
+          </button>
+        </>}
       </div>
       <div className="toolbarGroup">
         <button title="缩小" onClick={() => onZoom(-0.1)}>
@@ -821,17 +794,41 @@ function AppToolbar({
 
 function Sidebar({
   workflow,
+  workflowRecords,
+  activeWorkflowId,
+  storageStatus,
   selection,
   setSelection,
   focusNode,
   updateWorkflow,
+  onSelectWorkflow,
+  onCreateWorkflow,
+  onDuplicateWorkflow,
+  onDeleteWorkflow,
+  onRenameWorkflow,
+  collapsed,
+  onToggleCollapsed,
 }: {
   workflow: Workflow;
+  workflowRecords: WorkflowRecord[];
+  activeWorkflowId: string;
+  storageStatus: StorageStatus;
   selection: Selection;
   setSelection: (selection: Selection) => void;
   focusNode: (nodeId: string) => void;
   updateWorkflow: (updater: (workflow: Workflow) => void) => void;
+  onSelectWorkflow: (id: string) => void;
+  onCreateWorkflow: () => void;
+  onDuplicateWorkflow: () => void;
+  onDeleteWorkflow: (id?: string) => void;
+  onRenameWorkflow: (id: string, title: string) => void;
+  collapsed: boolean;
+  onToggleCollapsed: () => void;
 }) {
+  const [workflowListExpanded, setWorkflowListExpanded] = useState(false);
+  const [editingWorkflowId, setEditingWorkflowId] = useState("");
+  const [editingTitle, setEditingTitle] = useState("");
+  const storageLabel = storageStatus === "loading" ? "加载中" : storageStatus === "saving" ? "保存中" : storageStatus === "error" ? "保存失败" : "已保存";
   const fields = useMemo(() => {
     const map = new Map<string, string>();
     for (const node of workflow.nodes) {
@@ -892,8 +889,70 @@ function Sidebar({
     }
   };
 
+  const startRename = (record: WorkflowRecord) => {
+    setEditingWorkflowId(record.id);
+    setEditingTitle(record.title);
+  };
+
+  const commitRename = () => {
+    if (!editingWorkflowId) return;
+    const title = editingTitle.trim();
+    if (title) onRenameWorkflow(editingWorkflowId, title);
+    setEditingWorkflowId("");
+  };
+
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${collapsed ? "collapsed" : ""}`}>
+      <button
+        className="panelCollapseButton"
+        title={collapsed ? "展开左侧栏" : "向左收缩左侧栏"}
+        aria-label={collapsed ? "展开左侧栏" : "向左收缩左侧栏"}
+        onClick={onToggleCollapsed}
+      >
+        {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+      </button>
+      <section className="workflowLibrary">
+        <button className="workflowLibraryToggle" onClick={() => setWorkflowListExpanded((current) => !current)} title="展开图表列表">
+          <ListTree size={16} />
+          <span>{workflow.title || "未命名图表"}</span>
+          <ChevronDown size={15} className={workflowListExpanded ? "rotated" : ""} />
+        </button>
+        {workflowListExpanded && <div className="workflowLibraryBody">
+          <div className="workflowLibraryActions">
+            <button onClick={onCreateWorkflow} disabled={storageStatus === "loading"}><CirclePlus size={14} /> 新建图</button>
+            <button onClick={onDuplicateWorkflow} disabled={storageStatus === "loading" || !activeWorkflowId} title="复制当前图"><Copy size={14} /></button>
+            <span className={`storageStatus ${storageStatus}`}>{storageLabel}</span>
+          </div>
+          <div className="workflowList">
+            {workflowRecords.map((record) => (
+              <div className={`workflowItem ${record.id === activeWorkflowId ? "active" : ""}`} key={record.id}>
+                {editingWorkflowId === record.id ? (
+                  <input
+                    autoFocus
+                    value={editingTitle}
+                    onChange={(event) => setEditingTitle(event.target.value)}
+                    onBlur={commitRename}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") commitRename();
+                      if (event.key === "Escape") setEditingWorkflowId("");
+                    }}
+                    aria-label="重命名图表"
+                  />
+                ) : (
+                  <button className="workflowItemSelect" onClick={() => onSelectWorkflow(record.id)} title={`打开${record.title}`}>
+                    <span>{record.title || "未命名图表"}</span>
+                    {record.id === activeWorkflowId && <small>当前</small>}
+                  </button>
+                )}
+                <div className="workflowItemActions">
+                  <button title="重命名图表" aria-label={`重命名图表：${record.title}`} onClick={() => startRename(record)}><Pencil size={13} /></button>
+                  <button className="danger" title="删除图表" aria-label={`删除图表：${record.title}`} disabled={workflowRecords.length <= 1} onClick={() => onDeleteWorkflow(record.id)}><Trash2 size={13} /></button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>}
+      </section>
       <section>
         <h2>节点列表</h2>
         <div className="resourceList">
@@ -1466,12 +1525,26 @@ function RightPanel({
   selection,
   updateWorkflow,
   setSelection,
+  collapsed,
+  onToggleCollapsed,
 }: {
   workflow: Workflow;
   selection: Selection;
   updateWorkflow: (updater: (workflow: Workflow) => void) => void;
   setSelection: (selection: Selection) => void;
+  collapsed: boolean;
+  onToggleCollapsed: () => void;
 }) {
+  const collapseControl = (
+    <button
+      className="panelCollapseButton"
+      title={collapsed ? "展开右侧栏" : "向右收缩右侧栏"}
+      aria-label={collapsed ? "展开右侧栏" : "向右收缩右侧栏"}
+      onClick={onToggleCollapsed}
+    >
+      {collapsed ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
+    </button>
+  );
   const updateNode = (id: string, updater: (node: WorkflowNode) => void) =>
     updateWorkflow((draft) => {
       const target = draft.nodes.find((node) => node.id === id);
@@ -1495,9 +1568,10 @@ function RightPanel({
 
   if (selection.kind === "node") {
     const node = workflow.nodes.find((item) => item.id === selection.id) ?? workflow.nodes[0];
-    if (!node) return <aside className="propertyPanel" />;
+    if (!node) return <aside className={`propertyPanel ${collapsed ? "collapsed" : ""}`}>{collapseControl}</aside>;
     return (
-      <aside className="propertyPanel">
+      <aside className={`propertyPanel ${collapsed ? "collapsed" : ""}`}>
+        {collapseControl}
         <NodeEditor
           node={node}
           workflow={workflow}
@@ -1516,15 +1590,16 @@ function RightPanel({
   }
   if (selection.kind === "edge") {
     const edge = workflow.edges.find((item) => item.id === selection.id);
-    return <aside className="propertyPanel">{edge && <EdgeEditor edge={edge} workflow={workflow} updateEdge={updateEdge} />}</aside>;
+    return <aside className={`propertyPanel ${collapsed ? "collapsed" : ""}`}>{collapseControl}{edge && <EdgeEditor edge={edge} workflow={workflow} updateEdge={updateEdge} />}</aside>;
   }
   if (selection.kind === "caseLibrary") {
     const library = workflow.caseLibraries.find((item) => item.id === selection.id);
-    return <aside className="propertyPanel">{library && <CaseLibraryEditor library={library} updateLibrary={updateLibrary} />}</aside>;
+    return <aside className={`propertyPanel ${collapsed ? "collapsed" : ""}`}>{collapseControl}{library && <CaseLibraryEditor library={library} updateLibrary={updateLibrary} />}</aside>;
   }
   const rule = workflow.globalRules.find((item) => item.id === selection.id);
   return (
-    <aside className="propertyPanel">
+    <aside className={`propertyPanel ${collapsed ? "collapsed" : ""}`}>
+      {collapseControl}
       {rule && (
         <GlobalRuleEditor
           rule={rule}
@@ -1621,6 +1696,8 @@ export function App() {
   const [view, setView] = useState<ViewMode>("canvas");
   const [selection, setSelection] = useState<Selection>({ kind: "node", id: sampleWorkflowDocument.workflow.startNodeId });
   const [zoom, setZoom] = useState(0.82);
+  const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState(false);
+  const [rightPanelCollapsed, setRightPanelCollapsed] = useState(false);
   const [canvasFocusRequest, setCanvasFocusRequest] = useState<CanvasFocusRequest | null>(null);
   const [modelProfiles, setModelProfiles] = useState<ModelProfile[]>(() => loadModelProfiles());
   const [showModelSettings, setShowModelSettings] = useState(false);
@@ -1846,17 +1923,41 @@ export function App() {
     await saveAndOpenWorkflow(createWorkflowRecord(nextDocument));
   };
 
-  const deleteActiveWorkflow = async () => {
-    if (!activeWorkflowId || workflowRecords.length <= 1) return;
-    if (!window.confirm("删除当前图？这个操作不会删除已导出的 JSON 文件。")) return;
+  const deleteWorkflow = async (workflowId = activeWorkflowId) => {
+    if (!workflowId || workflowRecords.length <= 1) return;
+    const target = workflowRecords.find((record) => record.id === workflowId);
+    if (!target || !window.confirm(`删除「${target.title}」？这个操作不会删除已导出的 JSON 文件。`)) return;
 
-    const remaining = workflowRecords.filter((record) => record.id !== activeWorkflowId);
+    const remaining = workflowRecords.filter((record) => record.id !== workflowId);
     const nextRecord = remaining[0];
     try {
-      await deleteWorkflowRecord(activeWorkflowId);
+      await deleteWorkflowRecord(workflowId);
       setWorkflowRecords(sortRecords(remaining));
-      applyWorkflowRecord(nextRecord);
+      if (workflowId === activeWorkflowId && nextRecord) applyWorkflowRecord(nextRecord);
       setStorageStatus("saved");
+    } catch (error) {
+      console.error(error);
+      setStorageStatus("error");
+    }
+  };
+
+  const renameWorkflow = async (workflowId: string, title: string) => {
+    const nextTitle = title.trim();
+    const record = workflowRecords.find((item) => item.id === workflowId);
+    if (!nextTitle || !record) return;
+    if (workflowId === activeWorkflowId) {
+      updateWorkflow((draft) => { draft.title = nextTitle; });
+      return;
+    }
+    const nextRecord: WorkflowRecord = {
+      ...record,
+      title: nextTitle,
+      updatedAt: new Date().toISOString(),
+      document: { ...record.document, workflow: { ...record.document.workflow, title: nextTitle } },
+    };
+    try {
+      await saveWorkflowRecord(nextRecord);
+      setWorkflowRecords((prev) => sortRecords(prev.map((item) => item.id === workflowId ? nextRecord : item)));
     } catch (error) {
       console.error(error);
       setStorageStatus("error");
@@ -1888,13 +1989,6 @@ export function App() {
       <AppToolbar
         view={view}
         setView={setView}
-        workflowRecords={workflowRecords}
-        activeWorkflowId={activeWorkflowId}
-        storageStatus={storageStatus}
-        onSelectWorkflow={selectWorkflow}
-        onCreateWorkflow={createWorkflow}
-        onDuplicateWorkflow={duplicateWorkflow}
-        onDeleteWorkflow={deleteActiveWorkflow}
         onAddNode={addNode}
         onImport={importJson}
         onExport={exportJson}
@@ -1906,13 +2000,29 @@ export function App() {
         onZoom={(delta) => setZoom(Math.min(MAX_CANVAS_ZOOM, Math.max(MIN_CANVAS_ZOOM, zoom + delta)))}
         issuesCount={issues.length}
       />
-      <div className="workspace">
-        <Sidebar workflow={workflow} selection={selection} setSelection={setSelection} focusNode={focusNodeOnCanvas} updateWorkflow={updateWorkflow} />
+      <div className={`workspace ${leftSidebarCollapsed ? "leftSidebarCollapsed" : ""} ${rightPanelCollapsed ? "rightPanelCollapsed" : ""}`}>
+        <Sidebar
+          workflow={workflow}
+          workflowRecords={workflowRecords}
+          activeWorkflowId={activeWorkflowId}
+          storageStatus={storageStatus}
+          selection={selection}
+          setSelection={setSelection}
+          focusNode={focusNodeOnCanvas}
+          updateWorkflow={updateWorkflow}
+          onSelectWorkflow={selectWorkflow}
+          onCreateWorkflow={createWorkflow}
+          onDuplicateWorkflow={duplicateWorkflow}
+          onDeleteWorkflow={deleteWorkflow}
+          onRenameWorkflow={renameWorkflow}
+          collapsed={leftSidebarCollapsed}
+          onToggleCollapsed={() => setLeftSidebarCollapsed((current) => !current)}
+        />
         {view === "canvas" && <CanvasView workflow={workflow} selection={selection} setSelection={setSelection} updateWorkflow={updateWorkflow} zoom={zoom} setZoom={setZoom} focusRequest={canvasFocusRequest} />}
         {view === "prompt" && <PromptView markdown={markdown} />}
         {view === "json" && <JsonView document={document} onApply={(next) => { setDocument(next); setSelection({ kind: "node", id: next.workflow.startNodeId || next.workflow.nodes[0]?.id || "" }); }} />}
         {view === "validation" && <ValidationView workflow={workflow} />}
-        <RightPanel workflow={workflow} selection={selection} updateWorkflow={updateWorkflow} setSelection={setSelection} />
+        <RightPanel workflow={workflow} selection={selection} updateWorkflow={updateWorkflow} setSelection={setSelection} collapsed={rightPanelCollapsed} onToggleCollapsed={() => setRightPanelCollapsed((current) => !current)} />
       </div>
       {showTestBench && (
         <PromptTestBench
