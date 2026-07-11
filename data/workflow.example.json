@@ -1,7 +1,7 @@
 {
   "schemaVersion": "0.1.0",
   "workflow": {
-    "id": "zerozero_ai_api_customer_service_v1",
+    "id": "workflow_c4e3e9ec-cb7b-4a61-8063-38b2fd1a1f85",
     "title": "0-0 AI API Token 销售客服流程",
     "description": "网络服务客服大白为客户介绍模型、价格、稳定性、线路和支付方式，并引导客户注册。",
     "version": "1.0.0",
@@ -32,7 +32,14 @@
             "key": "primary_question",
             "label": "首要问题",
             "required": true,
-            "examples": ["模型", "价格", "稳定性", "线路", "支付", "注册"],
+            "examples": [
+              "模型",
+              "价格",
+              "稳定性",
+              "线路",
+              "支付",
+              "注册"
+            ],
             "avoidAskDirectly": false,
             "note": "识别客户当前最想了解的事项；一句话里出现多个问题时全部记录。"
           }
@@ -41,7 +48,12 @@
           {
             "id": "decision_1_model",
             "label": "询问模型",
-            "customerSignals": ["有什么模型", "支持哪些模型", "能用 GPT 吗", "能用 Claude 吗"],
+            "customerSignals": [
+              "有什么模型",
+              "支持哪些模型",
+              "能用 GPT 吗",
+              "能用 Claude 吗"
+            ],
             "intentLevel": "A",
             "nextNodeId": "node_3",
             "priority": 10,
@@ -51,7 +63,12 @@
           {
             "id": "decision_1_price",
             "label": "询问价格",
-            "customerSignals": ["多少钱", "价格怎么样", "费率", "有没有优惠"],
+            "customerSignals": [
+              "多少钱",
+              "价格怎么样",
+              "费率",
+              "有没有优惠"
+            ],
             "intentLevel": "A",
             "nextNodeId": "node_4",
             "priority": 20,
@@ -61,7 +78,13 @@
           {
             "id": "decision_1_stability",
             "label": "询问稳定性或线路",
-            "customerSignals": ["稳定吗", "速度怎么样", "线路", "国内能用吗", "延迟高吗"],
+            "customerSignals": [
+              "稳定吗",
+              "速度怎么样",
+              "线路",
+              "国内能用吗",
+              "延迟高吗"
+            ],
             "intentLevel": "A",
             "nextNodeId": "node_5",
             "priority": 30,
@@ -71,7 +94,12 @@
           {
             "id": "decision_1_payment",
             "label": "询问支付方式",
-            "customerSignals": ["怎么付款", "支持支付宝吗", "支持 USDC 吗", "充值方式"],
+            "customerSignals": [
+              "怎么付款",
+              "支持支付宝吗",
+              "支持 USDC 吗",
+              "充值方式"
+            ],
             "intentLevel": "A",
             "nextNodeId": "node_6",
             "priority": 40,
@@ -81,7 +109,12 @@
           {
             "id": "decision_1_register",
             "label": "准备注册",
-            "customerSignals": ["怎么注册", "发我网址", "我想试试", "直接开通"],
+            "customerSignals": [
+              "怎么注册",
+              "发我网址",
+              "我想试试",
+              "直接开通"
+            ],
             "intentLevel": "A",
             "nextNodeId": "node_9",
             "priority": 50,
@@ -91,7 +124,12 @@
           {
             "id": "decision_1_general",
             "label": "需求还不明确",
-            "customerSignals": ["先了解一下", "推荐一下", "不知道选什么", "你好"],
+            "customerSignals": [
+              "先了解一下",
+              "推荐一下",
+              "不知道选什么",
+              "你好"
+            ],
             "intentLevel": "B",
             "nextNodeId": "node_2",
             "priority": 60,
@@ -101,7 +139,12 @@
           {
             "id": "decision_1_no_need",
             "label": "明确没有需求",
-            "customerSignals": ["不需要", "暂时不用", "不用介绍了", "不想继续聊"],
+            "customerSignals": [
+              "不需要",
+              "暂时不用",
+              "不用介绍了",
+              "不想继续聊"
+            ],
             "intentLevel": "C",
             "nextNodeId": "ending_c",
             "priority": 70,
@@ -111,12 +154,16 @@
         ],
         "promptNotes": [],
         "layout": {
-          "x": 80,
-          "y": 260,
+          "x": -467,
+          "y": -37,
           "width": 310,
           "height": 190
         },
-        "tags": ["开场", "意图识别", "大白"],
+        "tags": [
+          "开场",
+          "意图识别",
+          "大白"
+        ],
         "status": "ready",
         "output": {
           "includeInPrompt": true,
@@ -130,7 +177,9 @@
         "code": "2",
         "title": "了解使用场景",
         "type": "question",
-        "intentLevel": ["B"],
+        "intentLevel": [
+          "B"
+        ],
         "scripts": [
           {
             "id": "script_2_main",
@@ -149,7 +198,13 @@
             "key": "usage_scenario",
             "label": "使用场景",
             "required": false,
-            "examples": ["个人对话", "程序开发", "内容生产", "团队系统", "转售"],
+            "examples": [
+              "个人对话",
+              "程序开发",
+              "内容生产",
+              "团队系统",
+              "转售"
+            ],
             "avoidAskDirectly": false,
             "note": "用于调整介绍重点，不要求客户透露具体行业或公司。"
           },
@@ -157,7 +212,12 @@
             "key": "preferred_model",
             "label": "常用模型",
             "required": false,
-            "examples": ["GPT", "Claude", "Gemini", "DeepSeek"],
+            "examples": [
+              "GPT",
+              "Claude",
+              "Gemini",
+              "DeepSeek"
+            ],
             "avoidAskDirectly": false,
             "note": "记录客户点名的模型或能力类型。"
           }
@@ -166,7 +226,14 @@
           {
             "id": "decision_2_model",
             "label": "关心模型能力",
-            "customerSignals": ["说出模型", "问模型覆盖", "写代码", "多模态", "图片", "语音"],
+            "customerSignals": [
+              "说出模型",
+              "问模型覆盖",
+              "写代码",
+              "多模态",
+              "图片",
+              "语音"
+            ],
             "intentLevel": "A",
             "nextNodeId": "node_3",
             "priority": 10,
@@ -176,7 +243,13 @@
           {
             "id": "decision_2_price",
             "label": "关心成本",
-            "customerSignals": ["个人使用", "批量调用", "预算有限", "问价格", "想省成本"],
+            "customerSignals": [
+              "个人使用",
+              "批量调用",
+              "预算有限",
+              "问价格",
+              "想省成本"
+            ],
             "intentLevel": "A",
             "nextNodeId": "node_4",
             "priority": 20,
@@ -186,7 +259,13 @@
           {
             "id": "decision_2_network",
             "label": "关心国内访问或生产稳定",
-            "customerSignals": ["国内开发", "团队系统", "生产环境", "网络线路", "延迟"],
+            "customerSignals": [
+              "国内开发",
+              "团队系统",
+              "生产环境",
+              "网络线路",
+              "延迟"
+            ],
             "intentLevel": "A",
             "nextNodeId": "node_5",
             "priority": 30,
@@ -196,7 +275,12 @@
           {
             "id": "decision_2_register",
             "label": "想直接试用",
-            "customerSignals": ["都可以", "先注册看看", "发链接", "直接试试"],
+            "customerSignals": [
+              "都可以",
+              "先注册看看",
+              "发链接",
+              "直接试试"
+            ],
             "intentLevel": "A",
             "nextNodeId": "node_9",
             "priority": 40,
@@ -206,12 +290,15 @@
         ],
         "promptNotes": [],
         "layout": {
-          "x": 470,
-          "y": 40,
+          "x": 950,
+          "y": -86,
           "width": 320,
           "height": 190
         },
-        "tags": ["需求识别", "场景"],
+        "tags": [
+          "需求识别",
+          "场景"
+        ],
         "status": "ready",
         "output": {
           "includeInPrompt": true,
@@ -225,7 +312,9 @@
         "code": "3",
         "title": "模型覆盖答疑",
         "type": "logic",
-        "intentLevel": ["A"],
+        "intentLevel": [
+          "A"
+        ],
         "scripts": [
           {
             "id": "script_3_main",
@@ -245,7 +334,14 @@
             "key": "preferred_model",
             "label": "目标模型",
             "required": false,
-            "examples": ["GPT", "Claude", "Gemini", "DeepSeek", "Grok", "Qwen"],
+            "examples": [
+              "GPT",
+              "Claude",
+              "Gemini",
+              "DeepSeek",
+              "Grok",
+              "Qwen"
+            ],
             "avoidAskDirectly": false,
             "note": "若客户已点名则直接记录，不再重复询问。"
           }
@@ -254,7 +350,13 @@
           {
             "id": "decision_3_register",
             "label": "模型合适，准备注册",
-            "customerSignals": ["有我要的", "可以", "发链接", "怎么开通", "想试试"],
+            "customerSignals": [
+              "有我要的",
+              "可以",
+              "发链接",
+              "怎么开通",
+              "想试试"
+            ],
             "intentLevel": "A",
             "nextNodeId": "node_9",
             "priority": 10,
@@ -264,7 +366,13 @@
           {
             "id": "decision_3_more",
             "label": "继续了解其他信息",
-            "customerSignals": ["价格呢", "稳定吗", "怎么支付", "线路怎么样", "还有个问题"],
+            "customerSignals": [
+              "价格呢",
+              "稳定吗",
+              "怎么支付",
+              "线路怎么样",
+              "还有个问题"
+            ],
             "intentLevel": "B",
             "nextNodeId": "node_8",
             "priority": 20,
@@ -274,12 +382,15 @@
         ],
         "promptNotes": [],
         "layout": {
-          "x": 860,
-          "y": 40,
+          "x": -31,
+          "y": -752,
           "width": 350,
           "height": 230
         },
-        "tags": ["模型", "产品答疑"],
+        "tags": [
+          "模型",
+          "产品答疑"
+        ],
         "status": "ready",
         "output": {
           "includeInPrompt": true,
@@ -293,7 +404,9 @@
         "code": "4",
         "title": "价格优势答疑",
         "type": "logic",
-        "intentLevel": ["A"],
+        "intentLevel": [
+          "A"
+        ],
         "scripts": [
           {
             "id": "script_4_main",
@@ -312,7 +425,12 @@
             "key": "usage_volume",
             "label": "预计用量",
             "required": false,
-            "examples": ["偶尔使用", "每天调用", "批量任务", "团队生产"],
+            "examples": [
+              "偶尔使用",
+              "每天调用",
+              "批量任务",
+              "团队生产"
+            ],
             "avoidAskDirectly": true,
             "note": "只在客户希望估算成本时自然询问，不作为注册前置条件。"
           }
@@ -321,7 +439,13 @@
           {
             "id": "decision_4_register",
             "label": "价格满意，准备注册",
-            "customerSignals": ["挺便宜", "可以", "发链接", "我去看看价格", "怎么充值"],
+            "customerSignals": [
+              "挺便宜",
+              "可以",
+              "发链接",
+              "我去看看价格",
+              "怎么充值"
+            ],
             "intentLevel": "A",
             "nextNodeId": "node_9",
             "priority": 10,
@@ -331,7 +455,13 @@
           {
             "id": "decision_4_more",
             "label": "继续比较",
-            "customerSignals": ["稳定吗", "有哪些模型", "线路呢", "支持什么支付", "再了解一下"],
+            "customerSignals": [
+              "稳定吗",
+              "有哪些模型",
+              "线路呢",
+              "支持什么支付",
+              "再了解一下"
+            ],
             "intentLevel": "B",
             "nextNodeId": "node_8",
             "priority": 20,
@@ -341,12 +471,15 @@
         ],
         "promptNotes": [],
         "layout": {
-          "x": 860,
-          "y": 310,
+          "x": 45,
+          "y": -478,
           "width": 350,
           "height": 210
         },
-        "tags": ["价格", "优惠"],
+        "tags": [
+          "价格",
+          "优惠"
+        ],
         "status": "ready",
         "output": {
           "includeInPrompt": true,
@@ -360,7 +493,9 @@
         "code": "5",
         "title": "稳定性与 Edge 线路答疑",
         "type": "logic",
-        "intentLevel": ["A"],
+        "intentLevel": [
+          "A"
+        ],
         "scripts": [
           {
             "id": "script_5_main",
@@ -387,7 +522,12 @@
             "key": "region",
             "label": "所在地区",
             "required": false,
-            "examples": ["中国大陆", "日本", "东南亚", "其他亚太地区"],
+            "examples": [
+              "中国大陆",
+              "日本",
+              "东南亚",
+              "其他亚太地区"
+            ],
             "avoidAskDirectly": false,
             "note": "仅用于线路建议，不要求精确地址。"
           },
@@ -395,7 +535,11 @@
             "key": "carrier",
             "label": "网络运营商",
             "required": false,
-            "examples": ["电信", "联通", "移动"],
+            "examples": [
+              "电信",
+              "联通",
+              "移动"
+            ],
             "avoidAskDirectly": false,
             "note": "用于三网优化线路选择。"
           }
@@ -404,7 +548,13 @@
           {
             "id": "decision_5_register",
             "label": "线路满足需求",
-            "customerSignals": ["可以测试", "这线路可以", "发链接", "怎么接入", "想试试"],
+            "customerSignals": [
+              "可以测试",
+              "这线路可以",
+              "发链接",
+              "怎么接入",
+              "想试试"
+            ],
             "intentLevel": "A",
             "nextNodeId": "node_9",
             "priority": 10,
@@ -414,7 +564,13 @@
           {
             "id": "decision_5_more",
             "label": "继续了解其他信息",
-            "customerSignals": ["价格呢", "模型呢", "怎么充值", "还有问题", "再看看"],
+            "customerSignals": [
+              "价格呢",
+              "模型呢",
+              "怎么充值",
+              "还有问题",
+              "再看看"
+            ],
             "intentLevel": "B",
             "nextNodeId": "node_8",
             "priority": 20,
@@ -424,12 +580,16 @@
         ],
         "promptNotes": [],
         "layout": {
-          "x": 860,
-          "y": 570,
+          "x": 250,
+          "y": -226,
           "width": 350,
           "height": 240
         },
-        "tags": ["稳定性", "三网优化", "Edge"],
+        "tags": [
+          "稳定性",
+          "三网优化",
+          "Edge"
+        ],
         "status": "ready",
         "output": {
           "includeInPrompt": true,
@@ -443,7 +603,9 @@
         "code": "6",
         "title": "支付与充值答疑",
         "type": "logic",
-        "intentLevel": ["A"],
+        "intentLevel": [
+          "A"
+        ],
         "scripts": [
           {
             "id": "script_6_main",
@@ -463,7 +625,12 @@
             "key": "payment_method",
             "label": "偏好支付方式",
             "required": false,
-            "examples": ["微信", "支付宝", "银行卡", "USDC"],
+            "examples": [
+              "微信",
+              "支付宝",
+              "银行卡",
+              "USDC"
+            ],
             "avoidAskDirectly": false,
             "note": "客户主动提及时记录，用于给出对应充值说明。"
           }
@@ -472,7 +639,13 @@
           {
             "id": "decision_6_register",
             "label": "支付方式合适",
-            "customerSignals": ["支持就行", "可以", "发链接", "我去充值", "怎么注册"],
+            "customerSignals": [
+              "支持就行",
+              "可以",
+              "发链接",
+              "我去充值",
+              "怎么注册"
+            ],
             "intentLevel": "A",
             "nextNodeId": "node_9",
             "priority": 10,
@@ -482,7 +655,13 @@
           {
             "id": "decision_6_more",
             "label": "继续了解其他信息",
-            "customerSignals": ["模型呢", "价格呢", "稳定吗", "线路怎么样", "再了解一下"],
+            "customerSignals": [
+              "模型呢",
+              "价格呢",
+              "稳定吗",
+              "线路怎么样",
+              "再了解一下"
+            ],
             "intentLevel": "B",
             "nextNodeId": "node_8",
             "priority": 20,
@@ -492,12 +671,15 @@
         ],
         "promptNotes": [],
         "layout": {
-          "x": 860,
-          "y": 860,
+          "x": 853,
+          "y": 142,
           "width": 350,
           "height": 210
         },
-        "tags": ["支付", "充值"],
+        "tags": [
+          "支付",
+          "充值"
+        ],
         "status": "ready",
         "output": {
           "includeInPrompt": true,
@@ -511,7 +693,10 @@
         "code": "7",
         "title": "API 接入说明",
         "type": "question",
-        "intentLevel": ["A", "B"],
+        "intentLevel": [
+          "A",
+          "B"
+        ],
         "scripts": [
           {
             "id": "script_7_main",
@@ -530,7 +715,12 @@
             "key": "client_type",
             "label": "接入方式",
             "required": false,
-            "examples": ["聊天客户端", "Python", "Node.js", "团队后端"],
+            "examples": [
+              "聊天客户端",
+              "Python",
+              "Node.js",
+              "团队后端"
+            ],
             "avoidAskDirectly": false,
             "note": "用于选择解释深度，不要求客户公开源码或密钥。"
           }
@@ -539,7 +729,12 @@
           {
             "id": "decision_7_register",
             "label": "准备开始接入",
-            "customerSignals": ["明白了", "发注册链接", "我先注册", "开始试用"],
+            "customerSignals": [
+              "明白了",
+              "发注册链接",
+              "我先注册",
+              "开始试用"
+            ],
             "intentLevel": "A",
             "nextNodeId": "node_9",
             "priority": 10,
@@ -549,7 +744,13 @@
           {
             "id": "decision_7_more",
             "label": "还有产品问题",
-            "customerSignals": ["先问价格", "先看模型", "线路呢", "支付呢", "还有问题"],
+            "customerSignals": [
+              "先问价格",
+              "先看模型",
+              "线路呢",
+              "支付呢",
+              "还有问题"
+            ],
             "intentLevel": "B",
             "nextNodeId": "node_8",
             "priority": 20,
@@ -559,12 +760,15 @@
         ],
         "promptNotes": [],
         "layout": {
-          "x": 1320,
-          "y": 40,
+          "x": 1981,
+          "y": -397,
           "width": 340,
           "height": 215
         },
-        "tags": ["API", "接入"],
+        "tags": [
+          "API",
+          "接入"
+        ],
         "status": "ready",
         "output": {
           "includeInPrompt": true,
@@ -578,7 +782,9 @@
         "code": "8",
         "title": "继续答疑 · 不重复推销",
         "type": "question",
-        "intentLevel": ["B"],
+        "intentLevel": [
+          "B"
+        ],
         "scripts": [
           {
             "id": "script_8_main",
@@ -597,7 +803,14 @@
           {
             "id": "decision_8_model",
             "label": "继续问模型",
-            "customerSignals": ["模型", "GPT", "Claude", "Gemini", "DeepSeek", "Grok"],
+            "customerSignals": [
+              "模型",
+              "GPT",
+              "Claude",
+              "Gemini",
+              "DeepSeek",
+              "Grok"
+            ],
             "intentLevel": "A",
             "nextNodeId": "node_3",
             "priority": 10,
@@ -607,7 +820,12 @@
           {
             "id": "decision_8_price",
             "label": "继续问价格",
-            "customerSignals": ["价格", "费率", "优惠", "成本"],
+            "customerSignals": [
+              "价格",
+              "费率",
+              "优惠",
+              "成本"
+            ],
             "intentLevel": "A",
             "nextNodeId": "node_4",
             "priority": 20,
@@ -617,7 +835,14 @@
           {
             "id": "decision_8_network",
             "label": "继续问稳定性或线路",
-            "customerSignals": ["稳定", "速度", "延迟", "三网", "日本 edge", "亚太 edge"],
+            "customerSignals": [
+              "稳定",
+              "速度",
+              "延迟",
+              "三网",
+              "日本 edge",
+              "亚太 edge"
+            ],
             "intentLevel": "A",
             "nextNodeId": "node_5",
             "priority": 30,
@@ -627,7 +852,14 @@
           {
             "id": "decision_8_payment",
             "label": "继续问支付",
-            "customerSignals": ["支付", "充值", "微信", "支付宝", "银行卡", "USDC"],
+            "customerSignals": [
+              "支付",
+              "充值",
+              "微信",
+              "支付宝",
+              "银行卡",
+              "USDC"
+            ],
             "intentLevel": "A",
             "nextNodeId": "node_6",
             "priority": 40,
@@ -637,7 +869,13 @@
           {
             "id": "decision_8_api",
             "label": "继续问接入",
-            "customerSignals": ["API", "怎么接入", "客户端", "代码", "token 怎么用"],
+            "customerSignals": [
+              "API",
+              "怎么接入",
+              "客户端",
+              "代码",
+              "token 怎么用"
+            ],
             "intentLevel": "A",
             "nextNodeId": "node_7",
             "priority": 50,
@@ -647,7 +885,12 @@
           {
             "id": "decision_8_register",
             "label": "准备注册",
-            "customerSignals": ["发链接", "注册", "开通", "想试试"],
+            "customerSignals": [
+              "发链接",
+              "注册",
+              "开通",
+              "想试试"
+            ],
             "intentLevel": "A",
             "nextNodeId": "node_9",
             "priority": 60,
@@ -657,7 +900,12 @@
           {
             "id": "decision_8_later",
             "label": "以后再看",
-            "customerSignals": ["先这样", "我再考虑", "以后再说", "暂时不用"],
+            "customerSignals": [
+              "先这样",
+              "我再考虑",
+              "以后再说",
+              "暂时不用"
+            ],
             "intentLevel": "B",
             "nextNodeId": "ending_b",
             "priority": 70,
@@ -667,12 +915,15 @@
         ],
         "promptNotes": [],
         "layout": {
-          "x": 1320,
-          "y": 340,
+          "x": 1505,
+          "y": -630,
           "width": 340,
           "height": 230
         },
-        "tags": ["答疑", "自然对话"],
+        "tags": [
+          "答疑",
+          "自然对话"
+        ],
         "status": "ready",
         "output": {
           "includeInPrompt": true,
@@ -686,7 +937,9 @@
         "code": "9",
         "title": "注册链接承接",
         "type": "handoff",
-        "intentLevel": ["A"],
+        "intentLevel": [
+          "A"
+        ],
         "scripts": [
           {
             "id": "script_9_main",
@@ -706,7 +959,12 @@
             "key": "registration_status",
             "label": "注册状态",
             "required": false,
-            "examples": ["已打开", "已注册", "暂时不注册", "遇到问题"],
+            "examples": [
+              "已打开",
+              "已注册",
+              "暂时不注册",
+              "遇到问题"
+            ],
             "avoidAskDirectly": false,
             "note": "用于决定继续协助、稍后跟进或礼貌结束。"
           }
@@ -715,7 +973,12 @@
           {
             "id": "decision_9_success",
             "label": "已注册或开始使用",
-            "customerSignals": ["注册好了", "已经开通", "充值好了", "开始用了"],
+            "customerSignals": [
+              "注册好了",
+              "已经开通",
+              "充值好了",
+              "开始用了"
+            ],
             "intentLevel": "A",
             "nextNodeId": "ending_a",
             "priority": 10,
@@ -725,7 +988,13 @@
           {
             "id": "decision_9_help",
             "label": "注册或接入遇到问题",
-            "customerSignals": ["打不开", "注册不了", "充值没到账", "不会接入", "报错"],
+            "customerSignals": [
+              "打不开",
+              "注册不了",
+              "充值没到账",
+              "不会接入",
+              "报错"
+            ],
             "intentLevel": "A",
             "nextNodeId": "node_10",
             "priority": 20,
@@ -735,7 +1004,12 @@
           {
             "id": "decision_9_later",
             "label": "稍后再注册",
-            "customerSignals": ["晚点看", "先收藏", "我再考虑", "现在不方便"],
+            "customerSignals": [
+              "晚点看",
+              "先收藏",
+              "我再考虑",
+              "现在不方便"
+            ],
             "intentLevel": "B",
             "nextNodeId": "ending_b",
             "priority": 30,
@@ -745,12 +1019,16 @@
         ],
         "promptNotes": [],
         "layout": {
-          "x": 1770,
-          "y": 230,
+          "x": 1995,
+          "y": 50,
           "width": 360,
           "height": 240
         },
-        "tags": ["注册", "官网", "转化"],
+        "tags": [
+          "注册",
+          "官网",
+          "转化"
+        ],
         "status": "ready",
         "output": {
           "includeInPrompt": true,
@@ -764,7 +1042,9 @@
         "code": "10",
         "title": "注册与接入问题排查",
         "type": "logic",
-        "intentLevel": ["A"],
+        "intentLevel": [
+          "A"
+        ],
         "scripts": [
           {
             "id": "script_10_main",
@@ -784,7 +1064,12 @@
             "key": "issue_stage",
             "label": "问题阶段",
             "required": true,
-            "examples": ["注册", "充值", "创建 token", "API 调用"],
+            "examples": [
+              "注册",
+              "充值",
+              "创建 token",
+              "API 调用"
+            ],
             "avoidAskDirectly": false,
             "note": "先定位出错环节。"
           },
@@ -792,7 +1077,11 @@
             "key": "error_message",
             "label": "错误信息",
             "required": false,
-            "examples": ["页面报错文字", "HTTP 状态码", "脱敏后的响应信息"],
+            "examples": [
+              "页面报错文字",
+              "HTTP 状态码",
+              "脱敏后的响应信息"
+            ],
             "avoidAskDirectly": false,
             "note": "只收集排查所需的非敏感错误信息。"
           }
@@ -801,7 +1090,12 @@
           {
             "id": "decision_10_resolved",
             "label": "问题解决",
-            "customerSignals": ["好了", "解决了", "可以用了", "注册成功"],
+            "customerSignals": [
+              "好了",
+              "解决了",
+              "可以用了",
+              "注册成功"
+            ],
             "intentLevel": "A",
             "nextNodeId": "ending_a",
             "priority": 10,
@@ -811,7 +1105,12 @@
           {
             "id": "decision_10_retry",
             "label": "需要回到接入说明",
-            "customerSignals": ["再说一下怎么接", "不会配置", "token 怎么用", "模型怎么选"],
+            "customerSignals": [
+              "再说一下怎么接",
+              "不会配置",
+              "token 怎么用",
+              "模型怎么选"
+            ],
             "intentLevel": "B",
             "nextNodeId": "node_7",
             "priority": 20,
@@ -821,7 +1120,11 @@
           {
             "id": "decision_10_later",
             "label": "暂时停止排查",
-            "customerSignals": ["晚点再弄", "先不搞了", "回头再说"],
+            "customerSignals": [
+              "晚点再弄",
+              "先不搞了",
+              "回头再说"
+            ],
             "intentLevel": "B",
             "nextNodeId": "ending_b",
             "priority": 30,
@@ -831,12 +1134,15 @@
         ],
         "promptNotes": [],
         "layout": {
-          "x": 1770,
-          "y": 560,
+          "x": 2652,
+          "y": -96,
           "width": 360,
           "height": 230
         },
-        "tags": ["排查", "安全"],
+        "tags": [
+          "排查",
+          "安全"
+        ],
         "status": "ready",
         "output": {
           "includeInPrompt": true,
@@ -850,7 +1156,9 @@
         "code": "11",
         "title": "成功开通 · 友好收尾",
         "type": "ending",
-        "intentLevel": ["A"],
+        "intentLevel": [
+          "A"
+        ],
         "scripts": [
           {
             "id": "script_ending_a",
@@ -867,12 +1175,15 @@
         "decisions": [],
         "promptNotes": [],
         "layout": {
-          "x": 2240,
-          "y": 160,
+          "x": 2634,
+          "y": -445,
           "width": 320,
           "height": 165
         },
-        "tags": ["收尾", "A级"],
+        "tags": [
+          "收尾",
+          "A级"
+        ],
         "status": "ready",
         "output": {
           "includeInPrompt": true,
@@ -886,7 +1197,9 @@
         "code": "12",
         "title": "暂缓决定 · 保留链接",
         "type": "ending",
-        "intentLevel": ["B"],
+        "intentLevel": [
+          "B"
+        ],
         "scripts": [
           {
             "id": "script_ending_b",
@@ -903,12 +1216,15 @@
         "decisions": [],
         "promptNotes": [],
         "layout": {
-          "x": 2240,
-          "y": 400,
+          "x": 2851,
+          "y": 278,
           "width": 320,
           "height": 165
         },
-        "tags": ["收尾", "B级"],
+        "tags": [
+          "收尾",
+          "B级"
+        ],
         "status": "ready",
         "output": {
           "includeInPrompt": true,
@@ -922,7 +1238,9 @@
         "code": "13",
         "title": "无需求 · 礼貌结束",
         "type": "ending",
-        "intentLevel": ["C"],
+        "intentLevel": [
+          "C"
+        ],
         "scripts": [
           {
             "id": "script_ending_c",
@@ -939,12 +1257,15 @@
         "decisions": [],
         "promptNotes": [],
         "layout": {
-          "x": 2240,
-          "y": 640,
+          "x": -475,
+          "y": 310,
           "width": 320,
           "height": 165
         },
-        "tags": ["收尾", "C级"],
+        "tags": [
+          "收尾",
+          "C级"
+        ],
         "status": "ready",
         "output": {
           "includeInPrompt": true,
@@ -954,7 +1275,484 @@
         }
       }
     ],
-    "edges": [],
+    "edges": [
+      {
+        "id": "edge_node_1_decision_1_model",
+        "sourceNodeId": "node_1",
+        "sourceDecisionId": "decision_1_model",
+        "targetNodeId": "node_3",
+        "label": "询问模型",
+        "intentLevel": "A",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#168a4a",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_1_decision_1_price",
+        "sourceNodeId": "node_1",
+        "sourceDecisionId": "decision_1_price",
+        "targetNodeId": "node_4",
+        "label": "询问价格",
+        "intentLevel": "A",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#168a4a",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_1_decision_1_stability",
+        "sourceNodeId": "node_1",
+        "sourceDecisionId": "decision_1_stability",
+        "targetNodeId": "node_5",
+        "label": "询问稳定性或线路",
+        "intentLevel": "A",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#168a4a",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_1_decision_1_payment",
+        "sourceNodeId": "node_1",
+        "sourceDecisionId": "decision_1_payment",
+        "targetNodeId": "node_6",
+        "label": "询问支付方式",
+        "intentLevel": "A",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#168a4a",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_1_decision_1_register",
+        "sourceNodeId": "node_1",
+        "sourceDecisionId": "decision_1_register",
+        "targetNodeId": "node_9",
+        "label": "准备注册",
+        "intentLevel": "A",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#168a4a",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_1_decision_1_general",
+        "sourceNodeId": "node_1",
+        "sourceDecisionId": "decision_1_general",
+        "targetNodeId": "node_2",
+        "label": "需求还不明确",
+        "intentLevel": "B",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#2563eb",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_1_decision_1_no_need",
+        "sourceNodeId": "node_1",
+        "sourceDecisionId": "decision_1_no_need",
+        "targetNodeId": "ending_c",
+        "label": "明确没有需求",
+        "intentLevel": "C",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#b42318",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_2_decision_2_model",
+        "sourceNodeId": "node_2",
+        "sourceDecisionId": "decision_2_model",
+        "targetNodeId": "node_3",
+        "label": "关心模型能力",
+        "intentLevel": "A",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#168a4a",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_2_decision_2_price",
+        "sourceNodeId": "node_2",
+        "sourceDecisionId": "decision_2_price",
+        "targetNodeId": "node_4",
+        "label": "关心成本",
+        "intentLevel": "A",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#168a4a",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_2_decision_2_network",
+        "sourceNodeId": "node_2",
+        "sourceDecisionId": "decision_2_network",
+        "targetNodeId": "node_5",
+        "label": "关心国内访问或生产稳定",
+        "intentLevel": "A",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#168a4a",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_2_decision_2_register",
+        "sourceNodeId": "node_2",
+        "sourceDecisionId": "decision_2_register",
+        "targetNodeId": "node_9",
+        "label": "想直接试用",
+        "intentLevel": "A",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#168a4a",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_3_decision_3_register",
+        "sourceNodeId": "node_3",
+        "sourceDecisionId": "decision_3_register",
+        "targetNodeId": "node_9",
+        "label": "模型合适，准备注册",
+        "intentLevel": "A",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#168a4a",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_3_decision_3_more",
+        "sourceNodeId": "node_3",
+        "sourceDecisionId": "decision_3_more",
+        "targetNodeId": "node_8",
+        "label": "继续了解其他信息",
+        "intentLevel": "B",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#2563eb",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_4_decision_4_register",
+        "sourceNodeId": "node_4",
+        "sourceDecisionId": "decision_4_register",
+        "targetNodeId": "node_9",
+        "label": "价格满意，准备注册",
+        "intentLevel": "A",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#168a4a",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_4_decision_4_more",
+        "sourceNodeId": "node_4",
+        "sourceDecisionId": "decision_4_more",
+        "targetNodeId": "node_8",
+        "label": "继续比较",
+        "intentLevel": "B",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#2563eb",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_5_decision_5_register",
+        "sourceNodeId": "node_5",
+        "sourceDecisionId": "decision_5_register",
+        "targetNodeId": "node_9",
+        "label": "线路满足需求",
+        "intentLevel": "A",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#168a4a",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_5_decision_5_more",
+        "sourceNodeId": "node_5",
+        "sourceDecisionId": "decision_5_more",
+        "targetNodeId": "node_8",
+        "label": "继续了解其他信息",
+        "intentLevel": "B",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#2563eb",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_6_decision_6_register",
+        "sourceNodeId": "node_6",
+        "sourceDecisionId": "decision_6_register",
+        "targetNodeId": "node_9",
+        "label": "支付方式合适",
+        "intentLevel": "A",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#168a4a",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_6_decision_6_more",
+        "sourceNodeId": "node_6",
+        "sourceDecisionId": "decision_6_more",
+        "targetNodeId": "node_8",
+        "label": "继续了解其他信息",
+        "intentLevel": "B",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#2563eb",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_7_decision_7_register",
+        "sourceNodeId": "node_7",
+        "sourceDecisionId": "decision_7_register",
+        "targetNodeId": "node_9",
+        "label": "准备开始接入",
+        "intentLevel": "A",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#168a4a",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_7_decision_7_more",
+        "sourceNodeId": "node_7",
+        "sourceDecisionId": "decision_7_more",
+        "targetNodeId": "node_8",
+        "label": "还有产品问题",
+        "intentLevel": "B",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#2563eb",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_8_decision_8_model",
+        "sourceNodeId": "node_8",
+        "sourceDecisionId": "decision_8_model",
+        "targetNodeId": "node_3",
+        "label": "继续问模型",
+        "intentLevel": "A",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#168a4a",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_8_decision_8_price",
+        "sourceNodeId": "node_8",
+        "sourceDecisionId": "decision_8_price",
+        "targetNodeId": "node_4",
+        "label": "继续问价格",
+        "intentLevel": "A",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#168a4a",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_8_decision_8_network",
+        "sourceNodeId": "node_8",
+        "sourceDecisionId": "decision_8_network",
+        "targetNodeId": "node_5",
+        "label": "继续问稳定性或线路",
+        "intentLevel": "A",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#168a4a",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_8_decision_8_payment",
+        "sourceNodeId": "node_8",
+        "sourceDecisionId": "decision_8_payment",
+        "targetNodeId": "node_6",
+        "label": "继续问支付",
+        "intentLevel": "A",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#168a4a",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_8_decision_8_api",
+        "sourceNodeId": "node_8",
+        "sourceDecisionId": "decision_8_api",
+        "targetNodeId": "node_7",
+        "label": "继续问接入",
+        "intentLevel": "A",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#168a4a",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_8_decision_8_register",
+        "sourceNodeId": "node_8",
+        "sourceDecisionId": "decision_8_register",
+        "targetNodeId": "node_9",
+        "label": "准备注册",
+        "intentLevel": "A",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#168a4a",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_8_decision_8_later",
+        "sourceNodeId": "node_8",
+        "sourceDecisionId": "decision_8_later",
+        "targetNodeId": "ending_b",
+        "label": "以后再看",
+        "intentLevel": "B",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#2563eb",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_9_decision_9_success",
+        "sourceNodeId": "node_9",
+        "sourceDecisionId": "decision_9_success",
+        "targetNodeId": "ending_a",
+        "label": "已注册或开始使用",
+        "intentLevel": "A",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#168a4a",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_9_decision_9_help",
+        "sourceNodeId": "node_9",
+        "sourceDecisionId": "decision_9_help",
+        "targetNodeId": "node_10",
+        "label": "注册或接入遇到问题",
+        "intentLevel": "A",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#168a4a",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_9_decision_9_later",
+        "sourceNodeId": "node_9",
+        "sourceDecisionId": "decision_9_later",
+        "targetNodeId": "ending_b",
+        "label": "稍后再注册",
+        "intentLevel": "B",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#2563eb",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_10_decision_10_resolved",
+        "sourceNodeId": "node_10",
+        "sourceDecisionId": "decision_10_resolved",
+        "targetNodeId": "ending_a",
+        "label": "问题解决",
+        "intentLevel": "A",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#168a4a",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_10_decision_10_retry",
+        "sourceNodeId": "node_10",
+        "sourceDecisionId": "decision_10_retry",
+        "targetNodeId": "node_7",
+        "label": "需要回到接入说明",
+        "intentLevel": "B",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#2563eb",
+          "dashed": false
+        }
+      },
+      {
+        "id": "edge_node_10_decision_10_later",
+        "sourceNodeId": "node_10",
+        "sourceDecisionId": "decision_10_later",
+        "targetNodeId": "ending_b",
+        "label": "暂时停止排查",
+        "intentLevel": "B",
+        "routePoints": [],
+        "autoRoute": true,
+        "style": {
+          "color": "#2563eb",
+          "dashed": false
+        }
+      }
+    ],
     "caseLibraries": [],
     "globalRules": [
       {
@@ -967,7 +1765,9 @@
           "说话像专业、耐心的真人在线客服：简洁、自信、有问必答，不混入其他行业的销售术语。",
           "官网及注册链接固定为：https://0-0.pro/register?ref=75RRBBR3"
         ],
-        "appliesTo": ["global"],
+        "appliesTo": [
+          "global"
+        ],
         "outputPosition": "prompt_start"
       },
       {
@@ -981,7 +1781,13 @@
           "网络口径：支持三网优化，并提供日本 edge、亚太 edge 等线路选择。",
           "支付口径：支持微信、支付宝、银行卡、USDC 等全面的支付方式；具体通道以充值页面为准。"
         ],
-        "appliesTo": ["node_3", "node_4", "node_5", "node_6", "global"],
+        "appliesTo": [
+          "node_3",
+          "node_4",
+          "node_5",
+          "node_6",
+          "global"
+        ],
         "outputPosition": "before_nodes"
       },
       {
@@ -995,7 +1801,9 @@
           "客户明确没有需求或不想继续时礼貌结束，不强推、不连发注册链接。",
           "无法确认的实时信息明确说以平台页面或文档为准，不编造价格、模型版本、到账时间、限额和 SLA。"
         ],
-        "appliesTo": ["global"],
+        "appliesTo": [
+          "global"
+        ],
         "outputPosition": "prompt_end"
       },
       {
@@ -1007,7 +1815,12 @@
           "排查接口问题时只收集步骤、错误文字、HTTP 状态码和已经脱敏的响应信息。",
           "如果客户误发敏感信息，立即提醒其删除或撤回并在平台内轮换相关凭据。"
         ],
-        "appliesTo": ["node_7", "node_9", "node_10", "global"],
+        "appliesTo": [
+          "node_7",
+          "node_9",
+          "node_10",
+          "global"
+        ],
         "outputPosition": "prompt_end"
       }
     ],
