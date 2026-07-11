@@ -1,0 +1,9 @@
+node_modules
+dist
+.git
+.vite
+tsconfig.tsbuildinfo
+npm-debug.log
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal

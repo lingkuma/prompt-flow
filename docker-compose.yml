@@ -1,0 +1,16 @@
+services:
+  prompt-workflow:
+    build: .
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      PORT: 3000
+      SHARE_DB_PATH: /data/shares.sqlite
+      SHARE_CREATE_TOKEN: ${SHARE_CREATE_TOKEN:-}
+      SHARE_PUBLIC_BASE_URL: ${SHARE_PUBLIC_BASE_URL:-}
+    volumes:
+      - prompt-workflow-data:/data
+    restart: unless-stopped
+
+volumes:
+  prompt-workflow-data:
