@@ -65,6 +65,11 @@ type Selection =
   | { kind: "caseLibrary"; id: string }
   | { kind: "globalRule"; id: string };
 
+type CanvasFocusRequest = {
+  nodeId: string;
+  requestId: number;
+};
+
 type EdgeRouteMeta = {
   sourceIndex: number;
   sourceCount: number;
@@ -814,11 +819,13 @@ function Sidebar({
   workflow,
   selection,
   setSelection,
+  focusNode,
   updateWorkflow,
 }: {
   workflow: Workflow;
   selection: Selection;
   setSelection: (selection: Selection) => void;
+  focusNode: (nodeId: string) => void;
   updateWorkflow: (updater: (workflow: Workflow) => void) => void;
 }) {
   const fields = useMemo(() => {
@@ -890,7 +897,7 @@ function Sidebar({
             <button
               key={node.id}
               className={selection.kind === "node" && selection.id === node.id ? "resource active" : "resource"}
-              onClick={() => setSelection({ kind: "node", id: node.id })}
+              onClick={() => focusNode(node.id)}
             >
               <span className={`typeDot ${node.type}`} />
               <strong>节点{node.code}</strong>
@@ -987,6 +994,7 @@ function CanvasView({
   updateWorkflow,
   zoom,
   setZoom,
+  focusRequest,
 }: {
   workflow: Workflow;
   selection: Selection;
@@ -994,6 +1002,7 @@ function CanvasView({
   updateWorkflow: (updater: (workflow: Workflow) => void) => void;
   zoom: number;
   setZoom: (zoom: number) => void;
+  focusRequest: CanvasFocusRequest | null;
 }) {
   const canvasRef = useRef<HTMLDivElement | null>(null);
   const [pan, setPan] = useState({ x: 20, y: 20 });
@@ -1007,6 +1016,21 @@ function CanvasView({
   const nodesById = useMemo(() => new Map(workflow.nodes.map((node) => [node.id, node])), [workflow.nodes]);
   const selectedEdgeId = selection.kind === "edge" ? selection.id : "";
   const edgeRouteMeta = useMemo(() => buildEdgeRouteMeta(workflow, nodesById), [workflow, nodesById]);
+
+  useEffect(() => {
+    if (!focusRequest || !canvasRef.current) return;
+    const node = workflow.nodes.find((item) => item.id === focusRequest.nodeId);
+    if (!node) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    const nodeCenter = {
+      x: node.layout.x + node.layout.width / 2,
+      y: node.layout.y + node.layout.height / 2,
+    };
+    setPan({
+      x: rect.width / 2 - nodeCenter.x * zoom,
+      y: rect.height / 2 - nodeCenter.y * zoom,
+    });
+  }, [focusRequest]);
 
   const toWorld = (clientX: number, clientY: number): Point => {
     const rect = canvasRef.current!.getBoundingClientRect();
@@ -1061,10 +1085,15 @@ function CanvasView({
         startDrag(event, { kind: "pan", start: { x: event.clientX, y: event.clientY }, pan });
       }}
       onWheel={(event) => {
-        if (event.ctrlKey || event.metaKey) {
-          event.preventDefault();
-          setZoom(Math.min(1.6, Math.max(0.55, zoom + (event.deltaY > 0 ? -0.05 : 0.05))));
-        }
+        event.preventDefault();
+        const rect = canvasRef.current?.getBoundingClientRect();
+        if (!rect) return;
+        const nextZoom = Math.min(1.6, Math.max(0.55, zoom * Math.exp(-event.deltaY * 0.001)));
+        if (nextZoom === zoom) return;
+        const pointer = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+        const world = { x: (pointer.x - pan.x) / zoom, y: (pointer.y - pan.y) / zoom };
+        setPan({ x: pointer.x - world.x * nextZoom, y: pointer.y - world.y * nextZoom });
+        setZoom(nextZoom);
       }}
     >
       <div className="canvasInner" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})` }}>
@@ -1582,12 +1611,18 @@ export function App() {
   const [view, setView] = useState<ViewMode>("canvas");
   const [selection, setSelection] = useState<Selection>({ kind: "node", id: sampleWorkflowDocument.workflow.startNodeId });
   const [zoom, setZoom] = useState(0.82);
+  const [canvasFocusRequest, setCanvasFocusRequest] = useState<CanvasFocusRequest | null>(null);
   const [modelProfiles, setModelProfiles] = useState<ModelProfile[]>(() => loadModelProfiles());
   const [showModelSettings, setShowModelSettings] = useState(false);
   const [showTestBench, setShowTestBench] = useState(false);
   const workflow = document.workflow;
   const markdown = useMemo(() => compilePrompt(workflow), [workflow]);
   const issues = useMemo(() => validateWorkflow(workflow), [workflow]);
+
+  const focusNodeOnCanvas = (nodeId: string) => {
+    setSelection({ kind: "node", id: nodeId });
+    setCanvasFocusRequest((current) => ({ nodeId, requestId: (current?.requestId ?? 0) + 1 }));
+  };
 
   function applyWorkflowRecord(record: WorkflowRecord) {
     setActiveWorkflowId(record.id);
@@ -1862,8 +1897,8 @@ export function App() {
         issuesCount={issues.length}
       />
       <div className="workspace">
-        <Sidebar workflow={workflow} selection={selection} setSelection={setSelection} updateWorkflow={updateWorkflow} />
-        {view === "canvas" && <CanvasView workflow={workflow} selection={selection} setSelection={setSelection} updateWorkflow={updateWorkflow} zoom={zoom} setZoom={setZoom} />}
+        <Sidebar workflow={workflow} selection={selection} setSelection={setSelection} focusNode={focusNodeOnCanvas} updateWorkflow={updateWorkflow} />
+        {view === "canvas" && <CanvasView workflow={workflow} selection={selection} setSelection={setSelection} updateWorkflow={updateWorkflow} zoom={zoom} setZoom={setZoom} focusRequest={canvasFocusRequest} />}
         {view === "prompt" && <PromptView markdown={markdown} />}
         {view === "json" && <JsonView document={document} onApply={(next) => { setDocument(next); setSelection({ kind: "node", id: next.workflow.startNodeId || next.workflow.nodes[0]?.id || "" }); }} />}
         {view === "validation" && <ValidationView workflow={workflow} />}
