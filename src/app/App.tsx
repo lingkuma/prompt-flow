@@ -83,6 +83,45 @@ const spreadPortOffset = (height: number, index: number, count: number) => {
   return inset + (span * index) / (count - 1);
 };
 
+type EdgePortSide = "top" | "right" | "bottom" | "left";
+
+function getEdgePortSides(source: WorkflowNode, target: WorkflowNode) {
+  const sourceCenter = {
+    x: source.layout.x + source.layout.width / 2,
+    y: source.layout.y + source.layout.height / 2,
+  };
+  const targetCenter = {
+    x: target.layout.x + target.layout.width / 2,
+    y: target.layout.y + target.layout.height / 2,
+  };
+  const dx = targetCenter.x - sourceCenter.x;
+  const dy = targetCenter.y - sourceCenter.y;
+
+  if (Math.abs(dx) >= Math.abs(dy)) {
+    return dx >= 0
+      ? { sourceSide: "right" as EdgePortSide, targetSide: "left" as EdgePortSide }
+      : { sourceSide: "left" as EdgePortSide, targetSide: "right" as EdgePortSide };
+  }
+
+  return dy >= 0
+    ? { sourceSide: "bottom" as EdgePortSide, targetSide: "top" as EdgePortSide }
+    : { sourceSide: "top" as EdgePortSide, targetSide: "bottom" as EdgePortSide };
+}
+
+function getNodePort(node: WorkflowNode, side: EdgePortSide, index: number, count: number): Point {
+  const offset = spreadPortOffset(side === "top" || side === "bottom" ? node.layout.width : node.layout.height, index, count);
+  switch (side) {
+    case "top":
+      return { x: node.layout.x + offset, y: node.layout.y };
+    case "right":
+      return { x: node.layout.x + node.layout.width, y: node.layout.y + offset };
+    case "bottom":
+      return { x: node.layout.x + offset, y: node.layout.y + node.layout.height };
+    case "left":
+      return { x: node.layout.x, y: node.layout.y + offset };
+  }
+}
+
 const nodeTypeLabels: Record<WorkflowNode["type"], string> = {
   start: "开场",
   question: "询问",
@@ -197,9 +236,21 @@ function buildEdgeRouteMeta(workflow: Workflow, nodesById: Map<string, WorkflowN
     const sorted = [...edges].sort((a, b) => {
       const aTarget = nodesById.get(a.targetNodeId);
       const bTarget = nodesById.get(b.targetNodeId);
-      const aY = aTarget ? aTarget.layout.y + aTarget.layout.height / 2 : 0;
-      const bY = bTarget ? bTarget.layout.y + bTarget.layout.height / 2 : 0;
-      return aY - bY || edgeSortKey(a).localeCompare(edgeSortKey(b));
+      const aSource = nodesById.get(a.sourceNodeId);
+      const bSource = nodesById.get(b.sourceNodeId);
+      const aSide = aTarget && aSource ? getEdgePortSides(aSource, aTarget).sourceSide : "right";
+      const bSide = bTarget && bSource ? getEdgePortSides(bSource, bTarget).sourceSide : "right";
+      const aAxis = aTarget
+        ? aSide === "top" || aSide === "bottom"
+          ? aTarget.layout.x + aTarget.layout.width / 2
+          : aTarget.layout.y + aTarget.layout.height / 2
+        : 0;
+      const bAxis = bTarget
+        ? bSide === "top" || bSide === "bottom"
+          ? bTarget.layout.x + bTarget.layout.width / 2
+          : bTarget.layout.y + bTarget.layout.height / 2
+        : 0;
+      return aAxis - bAxis || edgeSortKey(a).localeCompare(edgeSortKey(b));
     });
     sorted.forEach((edge, index) => {
       const item = ensureMeta(edge.id);
@@ -212,9 +263,21 @@ function buildEdgeRouteMeta(workflow: Workflow, nodesById: Map<string, WorkflowN
     const sorted = [...edges].sort((a, b) => {
       const aSource = nodesById.get(a.sourceNodeId);
       const bSource = nodesById.get(b.sourceNodeId);
-      const aY = aSource ? aSource.layout.y + aSource.layout.height / 2 : 0;
-      const bY = bSource ? bSource.layout.y + bSource.layout.height / 2 : 0;
-      return aY - bY || edgeSortKey(a).localeCompare(edgeSortKey(b));
+      const aTarget = nodesById.get(a.targetNodeId);
+      const bTarget = nodesById.get(b.targetNodeId);
+      const aSide = aTarget && aSource ? getEdgePortSides(aSource, aTarget).targetSide : "left";
+      const bSide = bTarget && bSource ? getEdgePortSides(bSource, bTarget).targetSide : "left";
+      const aAxis = aSource
+        ? aSide === "top" || aSide === "bottom"
+          ? aSource.layout.x + aSource.layout.width / 2
+          : aSource.layout.y + aSource.layout.height / 2
+        : 0;
+      const bAxis = bSource
+        ? bSide === "top" || bSide === "bottom"
+          ? bSource.layout.x + bSource.layout.width / 2
+          : bSource.layout.y + bSource.layout.height / 2
+        : 0;
+      return aAxis - bAxis || edgeSortKey(a).localeCompare(edgeSortKey(b));
     });
     sorted.forEach((edge, index) => {
       const item = ensureMeta(edge.id);
@@ -241,26 +304,45 @@ function getEdgeRoute(edge: WorkflowEdge, nodesById: Map<string, WorkflowNode>, 
   if (!source || !target) return null;
 
   const routeMeta = edgeRouteMeta.get(edge.id);
-  const sourceOffset = spreadPortOffset(source.layout.height, routeMeta?.sourceIndex ?? 0, routeMeta?.sourceCount ?? 1);
-  const targetOffset = spreadPortOffset(target.layout.height, routeMeta?.targetIndex ?? 0, routeMeta?.targetCount ?? 1);
-  const sourcePoint = { x: source.layout.x + source.layout.width, y: source.layout.y + sourceOffset };
-  const targetPoint = { x: target.layout.x, y: target.layout.y + targetOffset };
-  const sourceLane = ((routeMeta?.sourceIndex ?? 0) - ((routeMeta?.sourceCount ?? 1) - 1) / 2) * 28;
-  const targetLane = ((routeMeta?.targetIndex ?? 0) - ((routeMeta?.targetCount ?? 1) - 1) / 2) * 18;
+  const sourceIndex = routeMeta?.sourceIndex ?? 0;
+  const sourceCount = routeMeta?.sourceCount ?? 1;
+  const targetIndex = routeMeta?.targetIndex ?? 0;
+  const targetCount = routeMeta?.targetCount ?? 1;
+  const { sourceSide, targetSide } = getEdgePortSides(source, target);
+  const sourcePoint = getNodePort(source, sourceSide, sourceIndex, sourceCount);
+  const targetPoint = getNodePort(target, targetSide, targetIndex, targetCount);
+  const sourceLane = (sourceIndex - (sourceCount - 1) / 2) * 28;
+  const targetLane = (targetIndex - (targetCount - 1) / 2) * 18;
   const pairLane = ((routeMeta?.pairIndex ?? 0) - ((routeMeta?.pairCount ?? 1) - 1) / 2) * 18;
   const laneOffset = sourceLane + targetLane + pairLane;
-  const gap = targetPoint.x - sourcePoint.x;
-  const isForward = gap >= 0;
-  const baseMidX = isForward
-    ? gap < 180 ? targetPoint.x + 80 : sourcePoint.x + Math.max(110, gap / 2)
-    : Math.max(sourcePoint.x, targetPoint.x) + 140;
-  const minMidX = isForward ? sourcePoint.x + 60 : Math.max(sourcePoint.x, targetPoint.x) + 80;
-  const midX = Math.max(minMidX, baseMidX + laneOffset);
-  const routePoints = edge.autoRoute || edge.routePoints.length === 0
-    ? [sourcePoint, { x: midX, y: sourcePoint.y }, { x: midX, y: targetPoint.y }, targetPoint]
-    : [sourcePoint, ...edge.routePoints, targetPoint];
+  let routePoints: Point[];
+
+  if (sourceSide === "left" || sourceSide === "right") {
+    const direction = sourceSide === "right" ? 1 : -1;
+    const gap = targetPoint.x - sourcePoint.x;
+    const baseMidX = direction > 0
+      ? gap >= 0 ? sourcePoint.x + Math.max(80, gap / 2) : Math.max(sourcePoint.x, targetPoint.x) + 140
+      : gap <= 0 ? sourcePoint.x - Math.max(80, Math.abs(gap) / 2) : Math.min(sourcePoint.x, targetPoint.x) - 140;
+    const midX = baseMidX + direction * laneOffset;
+    routePoints = edge.autoRoute || edge.routePoints.length === 0
+      ? [sourcePoint, { x: midX, y: sourcePoint.y }, { x: midX, y: targetPoint.y }, targetPoint]
+      : [sourcePoint, ...edge.routePoints, targetPoint];
+  } else {
+    const direction = sourceSide === "bottom" ? 1 : -1;
+    const gap = targetPoint.y - sourcePoint.y;
+    const baseMidY = direction > 0
+      ? gap >= 0 ? sourcePoint.y + Math.max(80, gap / 2) : Math.max(sourcePoint.y, targetPoint.y) + 140
+      : gap <= 0 ? sourcePoint.y - Math.max(80, Math.abs(gap) / 2) : Math.min(sourcePoint.y, targetPoint.y) - 140;
+    const midY = baseMidY + direction * laneOffset;
+    routePoints = edge.autoRoute || edge.routePoints.length === 0
+      ? [sourcePoint, { x: sourcePoint.x, y: midY }, { x: targetPoint.x, y: midY }, targetPoint]
+      : [sourcePoint, ...edge.routePoints, targetPoint];
+  }
+
   const labelPoint = edge.autoRoute || edge.routePoints.length === 0
-    ? { x: midX, y: (sourcePoint.y + targetPoint.y) / 2 }
+    ? sourceSide === "left" || sourceSide === "right"
+      ? { x: routePoints[1].x, y: (sourcePoint.y + targetPoint.y) / 2 }
+      : { x: (sourcePoint.x + targetPoint.x) / 2, y: routePoints[1].y }
     : routePoints[Math.floor(routePoints.length / 2)];
 
   return { routePoints, labelPoint };
@@ -468,7 +550,7 @@ function createWorkflowSvg(workflow: Workflow) {
     <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
       <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#e5e8df" stroke-width="1" />
     </pattern>
-    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#667085" />
     </marker>
   </defs>
@@ -969,7 +1051,7 @@ function CanvasView({
             );
           })}
           <defs>
-            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
               <path d="M 0 0 L 10 5 L 0 10 z" fill="#667085" />
             </marker>
           </defs>
