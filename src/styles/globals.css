@@ -146,12 +146,39 @@ label {
   color: #183a2b;
 }
 
-.brand div {
+.brandCopy {
   display: grid;
   line-height: 1.05;
 }
 
-.brand span {
+.brandTitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.githubLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  color: #667085;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.githubLink:hover {
+  background: #e8eee9;
+  color: #183a2b;
+}
+
+.githubLink:focus-visible {
+  outline: 2px solid #3b7a5e;
+  outline-offset: 2px;
+}
+
+.brandCopy > span {
   margin-top: 3px;
   color: #667085;
   font-size: 12px;

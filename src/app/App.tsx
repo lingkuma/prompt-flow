@@ -12,6 +12,7 @@ import {
   Download,
   FileText,
   GitBranch,
+  Github,
   ImageDown,
   LayoutGrid,
   ListTree,
@@ -711,8 +712,20 @@ function AppToolbar({
     <header className="toolbar">
       <div className="brand">
         <GitBranch size={20} />
-        <div>
-          <strong>Prompt Workflow</strong>
+        <div className="brandCopy">
+          <div className="brandTitle">
+            <strong>Prompt Workflow</strong>
+            <a
+              className="githubLink"
+              href="https://github.com/lingkuma/prompt-flow"
+              target="_blank"
+              rel="noreferrer"
+              title="在 GitHub 上查看 lingkuma/prompt-flow"
+              aria-label="在 GitHub 上查看 lingkuma/prompt-flow"
+            >
+              <Github size={16} aria-hidden="true" />
+            </a>
+          </div>
           <span>规则图编辑器</span>
         </div>
       </div>
